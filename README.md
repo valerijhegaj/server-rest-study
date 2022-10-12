@@ -6,9 +6,7 @@ In this project I will try to write a restful server with the authorization data
 it will be server to store data
 
 ### Available http requests
-    GET    /api/users            - get public info about all users
     POST   /api/users            - create new user
-    GET    /api/users/{user_id}  - get public info about user_id
     POST   /api/session          - create new access token for user
     GET    /api/{user_id}/{path} - get file from user files
     POST   /api/{user_id}/{path} - add new file to cloud
