@@ -1,0 +1,45 @@
+### create user
+POST http://localhost:4444/api/user
+
+{
+"user":"2",
+"password":"1"
+}
+
+### create session
+POST http://localhost:4444/api/session
+
+{
+"user_id":2,
+"password":"1"
+}
+
+### get file
+GET http://localhost:4444/api/files/1/test.txt
+
+{
+"token":"2"
+}
+
+### post file
+POST http://localhost:4444/api/files/2/test.txt
+
+{
+"token":"2",
+"file_data":"test some data"
+}
+
+### put file
+PUT http://localhost:4444/api/files/2/test.txt
+
+{
+"token":"2",
+"file_data":"updated data"
+}
+
+### delete file
+DELETE http://localhost:4444/api/files/2/test.txt
+
+{
+"token":"2"
+}
