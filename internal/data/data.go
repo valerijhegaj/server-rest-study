@@ -1,5 +1,7 @@
 package data
 
+import "server-rest-study/pkg/file"
+
 func InitStorage() error {
 	return nil
 }
@@ -12,15 +14,15 @@ type Storage interface {
 	NewUser(name, password string) error
 	NewSession(userID int, token string) error
 
-	fileCurator
+	file.FileCurator
 }
 
 func NewTestStorage() *TestStorage {
-	return &TestStorage{NewFileCurator()}
+	return &TestStorage{file.NewFileCurator()}
 }
 
 type TestStorage struct {
-	fileCurator
+	file.FileCurator
 }
 
 func (c *TestStorage) NewUser(name, password string) error {

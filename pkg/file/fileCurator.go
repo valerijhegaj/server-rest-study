@@ -1,15 +1,16 @@
-package data
+package file
 
 import (
+	"fmt"
 	"io"
 	"os"
 )
 
-func NewFileCurator() fileCurator {
+func NewFileCurator() FileCurator {
 	return &fileCuratorPrimitive{}
 }
 
-type fileCurator interface {
+type FileCurator interface {
 	GetFile(userId int, path string) (
 		io.ReadCloser,
 		error,
@@ -19,8 +20,27 @@ type fileCurator interface {
 	DeleteFile(userID int, name string) error
 }
 
-func createPath(userID int, name string) string {
-	return "users_data/" + string(rune(userID)) + "/" + name
+func FormatPath(userID int, name string) string {
+	return fmt.Sprintf("./cmd/users_data/%d/%s", userID, name)
+}
+
+func separateFileAndPath(path string) (
+	string,
+	string,
+) {
+	firstSlash := 0
+	for i := len(path) - 1; i >= 0; i-- {
+		if path[i] == '/' {
+			firstSlash = i
+			break
+		}
+	}
+	return path[:firstSlash], path[firstSlash+1:]
+}
+
+func CreateDirsToFile(name string) error {
+	path, _ := separateFileAndPath(name)
+	return os.MkdirAll(path, 0700)
 }
 
 type fileCuratorPrimitive struct {
@@ -33,7 +53,7 @@ func (c *fileCuratorPrimitive) GetFile(
 	io.ReadCloser,
 	error,
 ) {
-	return os.Open(createPath(userID, name))
+	return os.Open(FormatPath(userID, name))
 }
 
 func (c *fileCuratorPrimitive) NewFile(
@@ -41,12 +61,18 @@ func (c *fileCuratorPrimitive) NewFile(
 	userID int,
 	name string,
 ) error {
-	writer, err := os.Create(createPath(userID, name))
+	path := FormatPath(userID, name)
+	err := CreateDirsToFile(path)
+	var writer io.WriteCloser
+	writer, err = os.Create(path)
 	if err != nil {
 		return err
 	}
+
 	_, err = io.Copy(writer, reader)
 	reader.Close()
+	writer.Close()
+
 	return err
 }
 func (c *fileCuratorPrimitive) UpdateFile(
@@ -54,18 +80,12 @@ func (c *fileCuratorPrimitive) UpdateFile(
 	userID int,
 	path string,
 ) error {
-	writer, err := os.Open(createPath(userID, path))
-	if err != nil {
-		return err
-	}
-	_, err = io.Copy(writer, reader)
-	reader.Close()
-	return err
+	return c.NewFile(reader, userID, path)
 }
 
 func (c *fileCuratorPrimitive) DeleteFile(
 	userID int,
 	path string,
 ) error {
-	return os.RemoveAll(createPath(userID, path))
+	return os.RemoveAll(FormatPath(userID, path))
 }
