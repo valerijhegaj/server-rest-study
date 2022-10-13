@@ -17,6 +17,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	var parsedBody file.Helper
 	if len(body) != 0 {
 		parsedBody, err = file.Parse(body)
@@ -41,13 +42,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		get(userID, name, token, w, r)
+		get(userID, name, token, w)
 	case http.MethodPost:
-		post(userID, name, token, parsedBody.FileData, w, r)
+		post(userID, name, token, parsedBody.FileData, w)
 	case http.MethodPut:
-		put(userID, name, token, parsedBody.FileData, w, r)
+		put(userID, name, token, parsedBody.FileData, w)
 	case http.MethodDelete:
-		del(userID, name, token, w, r)
+		del(userID, name, token, w)
 	default:
 		log.Println(
 			"Bad method for work with files, request method:",
@@ -79,12 +80,21 @@ func parseURL(path string) (
 	return userID, name, err
 }
 
-func get(
-	userID int, name, token string,
-	w http.ResponseWriter, r *http.Request,
-) {
+func get(userID int, name, token string, w http.ResponseWriter) {
 	storage := data.GetStorage()
-	//storage.CheckAccess(token, userID, name, "r") not implemented
+
+	isHasAccess, err := storage.CheckAccess(token, userID, name, "r")
+	if err != nil {
+		log.Println("Failed to get file:", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !isHasAccess {
+		log.Println("Failed to get file: Permission denied")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	rc, err := storage.GetFile(userID, name)
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
@@ -93,50 +103,75 @@ func get(
 	}
 
 	content, err := io.ReadAll(rc)
-	rc.Close()
+	rc.Close() //need to handle this error
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	w.Write(content)
-	log.Println("Successful get file", r.URL.Path)
+	w.Write(content) //need to handle this error
+	log.Println("Successful get file")
 }
 
 func post(
-	userID int, name, token, fileData string,
-	w http.ResponseWriter, r *http.Request,
+	userID int, name, token, fileData string, w http.ResponseWriter,
 ) {
 	storage := data.GetStorage()
-	//storage.CheckAccess(token, userID, name, "w") not implemented
-	err := storage.NewFile(file.NewReadCloser(fileData), userID, name)
+
+	isHasAccess, err := storage.CheckAccess(token, userID, name, "r")
+	if err != nil {
+		log.Println("Failed to get file:", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !isHasAccess {
+		log.Println("Failed to get file: Permission denied")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = storage.NewFile(
+		file.NewReadCloserFromString(fileData),
+		userID,
+		name,
+	)
 	if err != nil {
 		log.Println("Failed to post file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+	log.Println("Success posted file")
 }
 
 func put(
-	userID int, name, token, fileData string,
-	w http.ResponseWriter, r *http.Request,
+	userID int, name, token, fileData string, w http.ResponseWriter,
 ) {
-	post(userID, name, token, fileData, w, r)
+	post(userID, name, token, fileData, w)
+	log.Println("Success put file")
 }
 
-func del(
-	userID int, name, token string,
-	w http.ResponseWriter, r *http.Request,
-) {
+func del(userID int, name, token string, w http.ResponseWriter) {
 	storage := data.GetStorage()
 
-	//storage.CheckAccess(token, userID, name, "w") not implemented
-	err := storage.DeleteFile(userID, name)
+	isHasAccess, err := storage.CheckAccess(token, userID, name, "r")
+	if err != nil {
+		log.Println("Failed to get file:", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !isHasAccess {
+		log.Println("Failed to get file: Permission denied")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = storage.DeleteFile(userID, name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+	log.Println("Success del file")
 }

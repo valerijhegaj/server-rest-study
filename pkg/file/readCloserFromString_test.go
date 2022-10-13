@@ -11,7 +11,7 @@ func TestTestStringReadCloser_Read(t *testing.T) {
 	testData := "adfasdfasfd"
 	bufSize := 6
 
-	rc := NewReadCloser(testData)
+	rc := NewReadCloserFromString(testData)
 	buf := make([]byte, bufSize)
 
 	n, err := rc.Read(buf)

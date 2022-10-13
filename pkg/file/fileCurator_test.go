@@ -38,7 +38,7 @@ func TestFileCuratorPrimitive_NewFile(t *testing.T) {
 
 	test := func(userID int, name, data string) {
 		fc := NewFileCurator()
-		err := fc.NewFile(NewReadCloser(data), userID, name)
+		err := fc.NewFile(NewReadCloserFromString(data), userID, name)
 		if err != nil {
 			t.Error(format.ErrorString("without errors", err.Error()))
 		}
@@ -86,7 +86,7 @@ func TestFileCuratorPrimitive_GetFile(t *testing.T) {
 
 	test := func(userID int, name, data string) {
 		fc := NewFileCurator()
-		err := fc.NewFile(NewReadCloser(data), userID, name)
+		err := fc.NewFile(NewReadCloserFromString(data), userID, name)
 		if err != nil {
 			t.Error(format.ErrorString("without errors", err.Error()))
 		}
@@ -130,12 +130,16 @@ func TestFileCuratorPrimitive_UpdateFile(t *testing.T) {
 	defer os.Chdir("pkg/file")
 	test := func(userID int, name, data string) {
 		fc := NewFileCurator()
-		err := fc.NewFile(NewReadCloser("old data"), userID, name)
+		err := fc.NewFile(
+			NewReadCloserFromString("old data"),
+			userID,
+			name,
+		)
 		if err != nil {
 			t.Error(format.ErrorString("without errors", err.Error()))
 		}
 
-		err = fc.UpdateFile(NewReadCloser(data), userID, name)
+		err = fc.UpdateFile(NewReadCloserFromString(data), userID, name)
 		if err != nil {
 			t.Error(format.ErrorString("without errors", err.Error()))
 		}
@@ -179,12 +183,20 @@ func TestFileCuratorPrimitive_DeleteFile(t *testing.T) {
 	defer os.Chdir("pkg/file")
 	test := func(userID int, name1, name2 string) {
 		fc := NewFileCurator()
-		err := fc.NewFile(NewReadCloser("old1 data"), userID, name1)
+		err := fc.NewFile(
+			NewReadCloserFromString("old1 data"),
+			userID,
+			name1,
+		)
 		if err != nil {
 			t.Error(format.ErrorString("without errors", err.Error()))
 		}
 
-		err = fc.NewFile(NewReadCloser("old2 data"), userID, name2)
+		err = fc.NewFile(
+			NewReadCloserFromString("old2 data"),
+			userID,
+			name2,
+		)
 		if err != nil {
 			t.Error(format.ErrorString("without errors", err.Error()))
 		}
