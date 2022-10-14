@@ -15,7 +15,7 @@ POST http://localhost:4444/api/session
 }
 
 ### get file
-GET http://localhost:4444/api/files/1/test.txt
+GET http://localhost:4444/api/files/2/test.txt
 
 {
 "token":"2"

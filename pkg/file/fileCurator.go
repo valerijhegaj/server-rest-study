@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func NewFileCurator() FileCurator {
+func NewFileCuratorFF() FileCurator {
 	return &fileCuratorPrimitive{}
 }
 
