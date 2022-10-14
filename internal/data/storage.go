@@ -26,43 +26,9 @@ type UserCurator interface {
 	CheckAccess(
 		token string, userID int, path string, rights string,
 	) (bool, error)
+	SetRights(token string, userID int, path, rights string) error
 }
 
-func NewStorageNUFF() (Storage, error) {
-	return &storage{NewUserCuratorNU(), file.NewFileCuratorFF()}, nil
-}
-
-type storage struct {
-	UserCurator
-	file.FileCurator
-}
-
-func NewUserCuratorNU() UserCurator {
-	return &CuratorNU{}
-}
-
-// CuratorNU nothing store info about users
-type CuratorNU struct{}
-
-func (c *CuratorNU) NewUser(name, password string) (
-	int,
-	error,
-) {
-	return 1, nil
-}
-
-func (c *CuratorNU) NewSession(userID int, token string) error {
-	return nil
-}
-
-func (c *CuratorNU) NewToken(userID int, password string) (
-	string, error,
-) {
-	return "1", nil
-}
-
-func (c *CuratorNU) CheckAccess(
-	token string, userID int, path string, rights string,
-) (bool, error) {
-	return true, nil
-}
+const (
+	NotAuthorized = "not exist session"
+)

@@ -1,17 +1,73 @@
-### create user
+### create user 1
+POST http://localhost:4444/api/user
+
+{
+"user":"1",
+"password":"1"
+}
+
+### create user 2
 POST http://localhost:4444/api/user
 
 {
 "user":"2",
-"password":"1"
+"password":"2"
 }
 
-### create session
+### create session 1
 POST http://localhost:4444/api/session
 
 {
 "user_id":2,
 "password":"1"
+}
+
+### create session 2
+POST  http://localhost:4444/api/session
+
+{
+"user_id":3,
+"password":"2"
+}
+
+### get file
+GET http://localhost:4444/api/files/2/test.txt
+
+{
+"token":"1"
+}
+
+### post file
+POST http://localhost:4444/api/files/2/test.txt
+
+{
+"token":"1",
+"file_data":"test some data"
+}
+
+### put file
+PUT http://localhost:4444/api/files/2/test.txt
+
+{
+"token":"1",
+"file_data":"updated data"
+}
+
+### delete file
+DELETE http://localhost:4444/api/files/2/test.txt
+
+{
+"token":"1"
+}
+
+### give access
+POST http://localhost:4444/api/give_access
+
+{
+"token":"1",
+"user_id":3,
+"path":"test.txt",
+"rights":"r"
 }
 
 ### get file
@@ -21,25 +77,20 @@ GET http://localhost:4444/api/files/2/test.txt
 "token":"2"
 }
 
-### post file
-POST http://localhost:4444/api/files/2/test.txt
-
-{
-"token":"2",
-"file_data":"test some data"
-}
-
 ### put file
 PUT http://localhost:4444/api/files/2/test.txt
 
 {
 "token":"2",
-"file_data":"updated data"
+"file_data":"updated data 20"
 }
 
-### delete file
-DELETE http://localhost:4444/api/files/2/test.txt
+### give access
+POST http://localhost:4444/api/give_access
 
 {
-"token":"2"
+"token":"1",
+"user_id":3,
+"path":"test.txt",
+"rights":"rw"
 }

@@ -115,3 +115,19 @@ func (c *CuratorRAMU) CheckAccess(
 func (c *CuratorRAMU) DeleteFile(userID int, path string) {
 	delete(c.access, fmt.Sprintf("%d/%s", userID, path))
 }
+
+func (c *CuratorRAMU) SetRights(
+	token string, userID int, path, rights string,
+) error {
+	owner, ok := c.session[token]
+	if !ok {
+		return errors.New(NotAuthorized)
+	}
+	path = fmt.Sprintf("%d/%s", owner, path)
+	_, ok = c.access[path]
+	if !ok {
+		c.access[path] = make(map[int]string)
+	}
+	c.access[path][userID] = rights
+	return nil
+}

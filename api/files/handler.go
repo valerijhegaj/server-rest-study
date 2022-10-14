@@ -119,7 +119,7 @@ func post(
 ) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, name, "r")
+	isHasAccess, err := storage.CheckAccess(token, userID, name, "w")
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -155,7 +155,7 @@ func put(
 func del(userID int, name, token string, w http.ResponseWriter) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, name, "r")
+	isHasAccess, err := storage.CheckAccess(token, userID, name, "w")
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
