@@ -14,7 +14,7 @@ it will be server to store data
     DELETE /api/files/{user_id}/{path} - delete file
 ### Steps
 1. Write minimal golang server with all info in ram, and files in file system (implemented v0.1)
-2. Add isolation files from everybody
+2. Add isolation files from everybody (implemented v0.2)
 3. Add rw permissions to files
 4. Add database to store info about users
 5. Add more http request (a. change password, b. delete user, c. get file structure)
