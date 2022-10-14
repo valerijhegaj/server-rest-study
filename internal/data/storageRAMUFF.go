@@ -18,9 +18,9 @@ type storageRAMUFF struct {
 	file.FileCurator
 }
 
-func (c *storageRAMUFF) DeleteFile(userID int, name string) error {
-	c.CuratorRAMU.DeleteFile(userID, name)
-	return c.FileCurator.DeleteFile(userID, name)
+func (c *storageRAMUFF) DeleteFile(userID int, path string) error {
+	c.CuratorRAMU.DeleteFile(userID, path)
+	return c.FileCurator.DeleteFile(userID, path)
 }
 
 func NewUserCuratorRAMU() (*CuratorRAMU, error) {
@@ -53,8 +53,8 @@ func (c *CuratorRAMU) NewUser(username, password string) (
 		return 0, errors.New("user already exist")
 	}
 
-	c.usersCount++
 	userID := c.usersCount
+	c.usersCount++
 
 	c.username[userID] = username
 	c.password[userID] = password

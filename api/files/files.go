@@ -30,7 +30,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := parsedBody.Token
-	userID, name, err := parseURL(r.URL.Path)
+	userID, path, err := parseURL(r.URL.Path)
 	if err != nil {
 		log.Println(
 			"Failed to", r.Method, "file:", err.Error(),
@@ -42,13 +42,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		get(userID, name, token, w)
+		get(userID, path, token, w)
 	case http.MethodPost:
-		post(userID, name, token, parsedBody.FileData, w)
+		post(userID, path, token, parsedBody.FileData, w)
 	case http.MethodPut:
-		put(userID, name, token, parsedBody.FileData, w)
+		put(userID, path, token, parsedBody.FileData, w)
 	case http.MethodDelete:
-		del(userID, name, token, w)
+		del(userID, path, token, w)
 	default:
 		log.Println(
 			"Bad method for work with files, request method:",
@@ -74,16 +74,16 @@ func parseURL(path string) (
 		}
 	}
 	userIDstring := path[:ptr]
-	name := path[ptr+1:]
+	path = path[ptr+1:]
 	userID, err := strconv.Atoi(userIDstring)
 
-	return userID, name, err
+	return userID, path, err
 }
 
-func get(userID int, name, token string, w http.ResponseWriter) {
+func get(userID int, path, token string, w http.ResponseWriter) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, name, "r")
+	isHasAccess, err := storage.CheckAccess(token, userID, path, "r")
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -95,7 +95,7 @@ func get(userID int, name, token string, w http.ResponseWriter) {
 		return
 	}
 
-	rc, err := storage.GetFile(userID, name)
+	rc, err := storage.GetFile(userID, path)
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -115,11 +115,11 @@ func get(userID int, name, token string, w http.ResponseWriter) {
 }
 
 func post(
-	userID int, name, token, fileData string, w http.ResponseWriter,
+	userID int, path, token, fileData string, w http.ResponseWriter,
 ) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, name, "w")
+	isHasAccess, err := storage.CheckAccess(token, userID, path, "w")
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -134,7 +134,7 @@ func post(
 	err = storage.NewFile(
 		file.NewReadCloserFromString(fileData),
 		userID,
-		name,
+		path,
 	)
 	if err != nil {
 		log.Println("Failed to post file:", err.Error())
@@ -146,16 +146,16 @@ func post(
 }
 
 func put(
-	userID int, name, token, fileData string, w http.ResponseWriter,
+	userID int, path, token, fileData string, w http.ResponseWriter,
 ) {
-	post(userID, name, token, fileData, w)
+	post(userID, path, token, fileData, w)
 	log.Println("Success put file")
 }
 
-func del(userID int, name, token string, w http.ResponseWriter) {
+func del(userID int, path, token string, w http.ResponseWriter) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, name, "w")
+	isHasAccess, err := storage.CheckAccess(token, userID, path, "w")
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -167,7 +167,7 @@ func del(userID int, name, token string, w http.ResponseWriter) {
 		return
 	}
 
-	err = storage.DeleteFile(userID, name)
+	err = storage.DeleteFile(userID, path)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

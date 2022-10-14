@@ -20,7 +20,7 @@ type Storage interface {
 }
 
 type UserCurator interface {
-	NewUser(name, password string) (int, error)
+	NewUser(username, password string) (int, error)
 	NewToken(userID int, password string) (string, error)
 	NewSession(userID int, token string) error
 	CheckAccess(

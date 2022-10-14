@@ -2,7 +2,7 @@
 POST http://localhost:4444/api/user
 
 {
-"user":"1",
+"username":"1",
 "password":"1"
 }
 
@@ -10,7 +10,7 @@ POST http://localhost:4444/api/user
 POST http://localhost:4444/api/user
 
 {
-"user":"2",
+"username":"2",
 "password":"2"
 }
 

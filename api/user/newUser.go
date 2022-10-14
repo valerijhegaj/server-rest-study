@@ -28,20 +28,20 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parsedBody, err := file.Parse(body)
-	user, password := parsedBody.User, parsedBody.Password
-	if user == "" || err != nil {
+	username, password := parsedBody.UserName, parsedBody.Password
+	if username == "" || err != nil {
 		log.Print("Failed to create new user: ")
 		if err == nil {
 			log.Println(err.Error())
 		} else {
-			log.Println("unresolved name")
+			log.Println("unresolved username")
 		}
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	storage := data.GetStorage()
-	userID, err := storage.NewUser(user, password)
+	userID, err := storage.NewUser(username, password)
 	if err != nil {
 		log.Println("Failed to create new user: " + err.Error())
 		w.WriteHeader(http.StatusForbidden)
@@ -49,7 +49,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	w.Write(representAsJson(userID))
-	log.Println("Successfuly new user: " + user)
+	log.Println("Successfuly new user: " + username)
 }
 
 func representAsJson(userID int) []byte {

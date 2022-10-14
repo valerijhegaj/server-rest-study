@@ -4,7 +4,7 @@ import "encoding/json"
 
 type Helper struct {
 	Password string `json:"password"`
-	User     string `json:"user"`
+	UserName string `json:"username"`
 	UserID   int    `json:"user_id"`
 	Token    string `json:"token"`
 	FileData string `json:"file_data"`
