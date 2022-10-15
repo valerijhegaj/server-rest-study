@@ -16,6 +16,6 @@ it will be server to store data
 1. Write minimal golang server with all info in ram, and files in file system (implemented v0.1)
 2. Add isolation files from everybody (implemented v0.2)
 3. Add rw permissions to files (implemented v0.3)
-4. Add database to store info about users
-5. Add more http request (a. change password, b. delete user, c. get file structure, d. get user_id)
-6. 
+4. Add cookies support
+5. Add database to store info about users
+6. Add more http request (a. change password, b. delete user, c. get file structure, d. get user_id)
