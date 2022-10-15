@@ -29,7 +29,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	token := parsedBody.Token
+	var token string
+	cookies := r.Cookies()
+	log.Println(cookies, "adfasfd")
+	for _, c := range cookies {
+		if c.Name == "token" {
+			token = c.Value
+		}
+	}
 	userID, path, err := parseURL(r.URL.Path)
 	if err != nil {
 		log.Println(
@@ -85,12 +92,12 @@ func get(userID int, path, token string, w http.ResponseWriter) {
 
 	isHasAccess, err := storage.CheckAccess(token, userID, path, "r")
 	if err != nil {
-		log.Println("Failed to get file:", err.Error())
+		log.Println("Failed to get file:", err.Error(), token)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !isHasAccess {
-		log.Println("Failed to get file: Permission denied")
+		log.Println("Failed to get file: Permission denied", token)
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}

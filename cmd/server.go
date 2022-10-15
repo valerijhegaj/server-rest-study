@@ -7,6 +7,7 @@ import (
 	"server-rest-study/api/files"
 	giveAccess "server-rest-study/api/give_access"
 	"server-rest-study/api/session"
+	"server-rest-study/api/test"
 	"server-rest-study/api/user"
 	"server-rest-study/internal/data"
 )
@@ -26,6 +27,7 @@ func main() {
 	http.HandleFunc("/api/session", session.Handler)
 	http.HandleFunc("/api/files/", files.Handler)
 	http.HandleFunc("/api/give_access", giveAccess.Handler)
+	http.HandleFunc("/api/test", test.Handler)
 
 	const PORT = ":4444"
 

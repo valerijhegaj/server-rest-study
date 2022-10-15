@@ -1,7 +1,6 @@
 package session
 
 import (
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -28,7 +27,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parsedBody, err := file.Parse(body)
-	userID, password := parsedBody.UserID, parsedBody.Password
+	username, password := parsedBody.UserName, parsedBody.Password
 	if err != nil {
 		log.Println("Failed new session: " + err.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -37,30 +36,22 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	storage := data.GetStorage()
 
-	token, err := storage.NewToken(userID, password)
+	token, err := storage.NewToken(username, password)
 	if err != nil {
 		log.Println("Failed new session: " + err.Error())
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	err = storage.NewSession(userID, token)
+	err = storage.NewSession(username, token)
 	if err != nil {
 		log.Println("Failed new session: " + err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	cookie := &http.Cookie{Name: "token", Value: token, MaxAge: 60}
 	w.WriteHeader(http.StatusCreated)
-	w.Write(representAsJson(token))
-	log.Printf("Succesfuly new session: %d\n", userID)
-}
-
-func representAsJson(token string) []byte {
-	data, _ := json.Marshal(
-		struct {
-			Token string `json:"token"`
-		}{token},
-	)
-	return data
+	http.SetCookie(w, cookie)
+	log.Printf("Succesfuly new session: %s\n", username)
 }

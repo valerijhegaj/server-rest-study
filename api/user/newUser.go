@@ -1,7 +1,6 @@
 package user
 
 import (
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -48,15 +47,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write(representAsJson(userID))
+	w.Write(file.UnParse(file.Helper{UserID: userID}))
 	log.Println("Successfuly new user: " + username)
-}
-
-func representAsJson(userID int) []byte {
-	data, _ := json.Marshal(
-		struct {
-			UserID int `json:"user_id"`
-		}{userID},
-	)
-	return data
 }

@@ -32,9 +32,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	token, userID, path, rights :=
-		parsedBody.Token, parsedBody.UserID,
-		parsedBody.Path, parsedBody.Rights
+	userID, path, rights :=
+		parsedBody.UserID, parsedBody.Path, parsedBody.Rights
+
+	var token string
+	cookies := r.Cookies()
+	for _, c := range cookies {
+		if c.Name == "token" {
+			token = c.Value
+		}
+	}
 
 	storage := data.GetStorage()
 	err = storage.SetRights(token, userID, path, rights)

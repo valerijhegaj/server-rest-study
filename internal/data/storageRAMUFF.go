@@ -63,27 +63,29 @@ func (c *CuratorRAMU) NewUser(username, password string) (
 	return userID, nil
 }
 
-func (c *CuratorRAMU) NewToken(userID int, password string) (
+func (c *CuratorRAMU) NewToken(username string, password string) (
 	string, error,
 ) {
-	if c.password[userID] != password {
-		return "", errors.New("incorrect password")
-	}
-
-	token, ok := c.username[userID]
+	userID, ok := c.userID[username]
 	if !ok {
 		return "", errors.New("user not exist")
 	}
+	if c.password[userID] != password {
+		return "", errors.New("incorrect password")
+	}
+	token := username
 
 	return token, nil
 }
 
-func (c *CuratorRAMU) NewSession(userID int, token string) error {
+func (c *CuratorRAMU) NewSession(
+	username string, token string,
+) error {
 	_, ok := c.session[token]
 	if ok {
 		return errors.New("session already exist")
 	}
-	c.session[token] = userID
+	c.session[token] = c.userID[username]
 	return nil
 }
 

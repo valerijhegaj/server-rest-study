@@ -18,7 +18,7 @@ POST http://localhost:4444/api/user
 POST http://localhost:4444/api/session
 
 {
-"user_id":2,
+"username":"1",
 "password":"1"
 }
 
@@ -26,7 +26,7 @@ POST http://localhost:4444/api/session
 POST  http://localhost:4444/api/session
 
 {
-"user_id":3,
+"username":"2",
 "password":"2"
 }
 
@@ -34,14 +34,14 @@ POST  http://localhost:4444/api/session
 GET http://localhost:4444/api/files/2/test.txt
 
 {
-"token":"1"
+"token":"2"
 }
 
 ### post file
 POST http://localhost:4444/api/files/2/test.txt
+Cookie: token=1
 
 {
-"token":"1",
 "file_data":"test some data"
 }
 
@@ -49,16 +49,11 @@ POST http://localhost:4444/api/files/2/test.txt
 PUT http://localhost:4444/api/files/2/test.txt
 
 {
-"token":"1",
 "file_data":"updated data"
 }
 
 ### delete file
 DELETE http://localhost:4444/api/files/2/test.txt
-
-{
-"token":"1"
-}
 
 ### give access
 POST http://localhost:4444/api/give_access
@@ -87,10 +82,13 @@ PUT http://localhost:4444/api/files/2/test.txt
 
 ### give access
 POST http://localhost:4444/api/give_access
+Cookie: token=1
 
 {
-"token":"1",
-"user_id":3,
+"user_id":0,
 "path":"test.txt",
 "rights":"rw"
 }
+
+### get test
+GET http://localhost:4444/api/test
