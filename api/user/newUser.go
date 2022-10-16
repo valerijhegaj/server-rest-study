@@ -40,13 +40,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	storage := data.GetStorage()
-	userID, err := storage.NewUser(username, password)
+	_, err = storage.NewUser(username, password)
 	if err != nil {
 		log.Println("Failed to create new user: " + err.Error())
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write(file.UnParse(file.Helper{UserID: userID}))
 	log.Println("Successfuly new user: " + username)
 }

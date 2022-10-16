@@ -1,27 +1,22 @@
 package file
 
 import (
-	"fmt"
 	"io"
 	"os"
 )
 
-func NewFileCuratorFF() FileCurator {
+func NewFileCurator() FileCurator {
 	return &fileCuratorPrimitive{}
 }
 
 type FileCurator interface {
-	GetFile(userId int, path string) (
+	GetFile(path string) (
 		io.ReadCloser,
 		error,
 	)
-	NewFile(file io.ReadCloser, userID int, path string) error
-	UpdateFile(file io.ReadCloser, userID int, path string) error
-	DeleteFile(userID int, path string) error
-}
-
-func FormatPath(userID int, path string) string {
-	return fmt.Sprintf("./cmd/users_data/%d/%s", userID, path)
+	NewFile(file io.ReadCloser, path string) error
+	UpdateFile(file io.ReadCloser, path string) error
+	DeleteFile(path string) error
 }
 
 func separateFileAndPath(path string) (string, string) {
@@ -43,17 +38,16 @@ func CreateDirsToFile(path string) error {
 type fileCuratorPrimitive struct {
 }
 
-func (c *fileCuratorPrimitive) GetFile(userID int, path string) (
+func (c *fileCuratorPrimitive) GetFile(path string) (
 	io.ReadCloser,
 	error,
 ) {
-	return os.Open(FormatPath(userID, path))
+	return os.Open(path)
 }
 
 func (c *fileCuratorPrimitive) NewFile(
-	reader io.ReadCloser, userID int, path string,
+	reader io.ReadCloser, path string,
 ) error {
-	path = FormatPath(userID, path)
 	err := CreateDirsToFile(path)
 	var writer io.WriteCloser
 	writer, err = os.Create(path)
@@ -68,13 +62,13 @@ func (c *fileCuratorPrimitive) NewFile(
 	return err
 }
 func (c *fileCuratorPrimitive) UpdateFile(
-	reader io.ReadCloser, userID int, path string,
+	reader io.ReadCloser, path string,
 ) error {
-	return c.NewFile(reader, userID, path)
+	return c.NewFile(reader, path)
 }
 
 func (c *fileCuratorPrimitive) DeleteFile(
-	userID int, path string,
+	path string,
 ) error {
-	return os.RemoveAll(FormatPath(userID, path))
+	return os.RemoveAll(path)
 }

@@ -1,15 +1,12 @@
 package data
 
 import (
-	"errors"
-	"fmt"
-
 	"server-rest-study/pkg/file"
 )
 
 func NewStorageRAMUFF() (Storage, error) {
 	UserCurator, err := NewUserCuratorRAMU()
-	return &storageRAMUFF{UserCurator, file.NewFileCuratorFF()}, err
+	return &storageRAMUFF{UserCurator, NewCuratorFF()}, err
 }
 
 // storageRAMUFF RAM store users info, file system store users files
@@ -18,118 +15,7 @@ type storageRAMUFF struct {
 	file.FileCurator
 }
 
-func (c *storageRAMUFF) DeleteFile(userID int, path string) error {
-	c.CuratorRAMU.DeleteFile(userID, path)
-	return c.FileCurator.DeleteFile(userID, path)
-}
-
-func NewUserCuratorRAMU() (*CuratorRAMU, error) {
-	return &CuratorRAMU{
-		userID:     make(map[string]int),
-		username:   make(map[int]string),
-		password:   make(map[int]string),
-		session:    make(map[string]int),
-		access:     make(map[string]map[int]string),
-		usersCount: 1,
-	}, nil
-}
-
-// CuratorRAMU Ram store info about Users
-type CuratorRAMU struct {
-	userID   map[string]int
-	username map[int]string
-	password map[int]string
-	session  map[string]int
-	// path -> userid -> rights
-	access     map[string]map[int]string
-	usersCount int
-}
-
-func (c *CuratorRAMU) NewUser(username, password string) (
-	int, error,
-) {
-	_, ok := c.userID[username]
-	if ok {
-		return 0, errors.New("user already exist")
-	}
-
-	userID := c.usersCount
-	c.usersCount++
-
-	c.username[userID] = username
-	c.password[userID] = password
-	c.userID[username] = userID
-
-	return userID, nil
-}
-
-func (c *CuratorRAMU) NewToken(username string, password string) (
-	string, error,
-) {
-	userID, ok := c.userID[username]
-	if !ok {
-		return "", errors.New("user not exist")
-	}
-	if c.password[userID] != password {
-		return "", errors.New("incorrect password")
-	}
-	token := username
-
-	return token, nil
-}
-
-func (c *CuratorRAMU) NewSession(
-	username string, token string,
-) error {
-	_, ok := c.session[token]
-	if ok {
-		return errors.New("session already exist")
-	}
-	c.session[token] = c.userID[username]
-	return nil
-}
-
-func (c *CuratorRAMU) CheckAccess(
-	token string, userID int, path string, askerRights string,
-) (bool, error) {
-	askerUserID := c.session[token]
-	if askerUserID == userID {
-		return true, nil
-	}
-
-	realRights := c.access[fmt.Sprintf(
-		"%d/%s", userID, path,
-	)][askerUserID]
-
-	switch len(realRights) {
-	case 2:
-		if realRights[0] == askerRights[0] || realRights[1] == askerRights[0] {
-			return true, nil
-		}
-	case 1:
-		if realRights[0] == askerRights[0] {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
-func (c *CuratorRAMU) DeleteFile(userID int, path string) {
-	delete(c.access, fmt.Sprintf("%d/%s", userID, path))
-}
-
-func (c *CuratorRAMU) SetRights(
-	token string, userID int, path, rights string,
-) error {
-	owner, ok := c.session[token]
-	if !ok {
-		return errors.New(NotAuthorized)
-	}
-	path = fmt.Sprintf("%d/%s", owner, path)
-	_, ok = c.access[path]
-	if !ok {
-		c.access[path] = make(map[int]string)
-	}
-	c.access[path][userID] = rights
-	return nil
+func (c *storageRAMUFF) DeleteFile(path string) error {
+	c.CuratorRAMU.DeleteFile(path)
+	return c.FileCurator.DeleteFile(path)
 }

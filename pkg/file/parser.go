@@ -7,10 +7,10 @@ import (
 type Helper struct {
 	Password string `json:"password,omitempty"`
 	UserName string `json:"username,omitempty"`
-	UserID   int    `json:"user_id,omitempty"`
 	FileData string `json:"file_data,omitempty"`
 	Path     string `json:"path,omitempty"`
 	Rights   string `json:"rights,omitempty"`
+	MaxAge   int    `json:"max_age,omitempty"`
 }
 
 func Parse(data []byte) (

@@ -32,8 +32,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	userID, path, rights :=
-		parsedBody.UserID, parsedBody.Path, parsedBody.Rights
+	username, path, rights :=
+		parsedBody.UserName, parsedBody.Path, parsedBody.Rights
 
 	var token string
 	cookies := r.Cookies()
@@ -44,7 +44,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	storage := data.GetStorage()
-	err = storage.SetRights(token, userID, path, rights)
+	err = storage.SetRights(token, username, path, rights)
 	if err != nil {
 		if err.Error() == data.NotAuthorized {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -55,8 +55,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf(
-		"Successful set rights owner: %s, user: %d, path: %s, rights: %s",
-		token, userID, path, rights,
+		"Successful set rights owner: %s, user: %s, path: %s, rights: %s",
+		token, username, path, rights,
 	)
 	log.Println()
 	w.WriteHeader(http.StatusCreated)

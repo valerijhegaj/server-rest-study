@@ -24,9 +24,9 @@ type UserCurator interface {
 	NewToken(username string, password string) (string, error)
 	NewSession(username string, token string) error
 	CheckAccess(
-		token string, userID int, path string, rights string,
+		token string, path string, rights string,
 	) (bool, error)
-	SetRights(token string, userID int, path, rights string) error
+	SetRights(token string, username string, path, rights string) error
 }
 
 const (

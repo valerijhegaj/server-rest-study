@@ -21,6 +21,7 @@ func main() {
 		)
 	}
 
+	const PORT = ":4444"
 	//http.HandleFunc("endpoint", handler)
 
 	http.HandleFunc("/api/user", user.Handler)
@@ -28,8 +29,6 @@ func main() {
 	http.HandleFunc("/api/files/", files.Handler)
 	http.HandleFunc("/api/give_access", giveAccess.Handler)
 	http.HandleFunc("/api/test", test.Handler)
-
-	const PORT = ":4444"
 
 	err = http.ListenAndServe(PORT, nil)
 	if err != nil {

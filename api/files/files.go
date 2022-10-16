@@ -4,7 +4,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 
 	"server-rest-study/internal/data"
 	"server-rest-study/pkg/file"
@@ -21,7 +20,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	var parsedBody file.Helper
 	if len(body) != 0 {
 		parsedBody, err = file.Parse(body)
-		file.Parse(body) //delete
 		if err != nil {
 			log.Println("Failed to", r.Method, "file:", err.Error())
 			w.WriteHeader(http.StatusBadRequest)
@@ -30,14 +28,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var token string
-	cookies := r.Cookies()
-	log.Println(cookies, "adfasfd")
-	for _, c := range cookies {
-		if c.Name == "token" {
-			token = c.Value
-		}
+	//if error -> notAuthorized
+	cookie, err := r.Cookie("token")
+	if err == nil {
+		token = cookie.Value
 	}
-	userID, path, err := parseURL(r.URL.Path)
+
+	path, err := parseURL(r.URL.Path)
 	if err != nil {
 		log.Println(
 			"Failed to", r.Method, "file:", err.Error(),
@@ -49,13 +46,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		get(userID, path, token, w)
+		get(path, token, w)
 	case http.MethodPost:
-		post(userID, path, token, parsedBody.FileData, w)
+		post(path, token, parsedBody.FileData, w)
 	case http.MethodPut:
-		put(userID, path, token, parsedBody.FileData, w)
+		put(path, token, parsedBody.FileData, w)
 	case http.MethodDelete:
-		del(userID, path, token, w)
+		del(path, token, w)
 	default:
 		log.Println(
 			"Bad method for work with files, request method:",
@@ -65,32 +62,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func parseURL(path string) (
-	int,
-	string,
-	error,
-) {
-	const commonSize int = 11
+func parseURL(path string) (string, error) {
+	const commonSize int = 11 // cat /api/files/
 	path = path[commonSize:]
 
-	ptr := len(path)
-	for i := 0; i < len(path); i++ {
-		if path[i] == '/' {
-			ptr = i
-			break
-		}
-	}
-	userIDstring := path[:ptr]
-	path = path[ptr+1:]
-	userID, err := strconv.Atoi(userIDstring)
-
-	return userID, path, err
+	return path, nil
 }
 
-func get(userID int, path, token string, w http.ResponseWriter) {
+func get(path, token string, w http.ResponseWriter) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, path, "r")
+	isHasAccess, err := storage.CheckAccess(token, path, "r")
 	if err != nil {
 		log.Println("Failed to get file:", err.Error(), token)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -102,7 +84,7 @@ func get(userID int, path, token string, w http.ResponseWriter) {
 		return
 	}
 
-	rc, err := storage.GetFile(userID, path)
+	rc, err := storage.GetFile(path)
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -122,25 +104,25 @@ func get(userID int, path, token string, w http.ResponseWriter) {
 }
 
 func post(
-	userID int, path, token, fileData string, w http.ResponseWriter,
+	path, token, fileData string,
+	w http.ResponseWriter,
 ) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, path, "w")
+	isHasAccess, err := storage.CheckAccess(token, path, "w")
 	if err != nil {
-		log.Println("Failed to get file:", err.Error())
+		log.Println("Failed to post file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !isHasAccess {
-		log.Println("Failed to get file: Permission denied")
+		log.Println("Failed to post file: Permission denied")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	err = storage.NewFile(
 		file.NewReadCloserFromString(fileData),
-		userID,
 		path,
 	)
 	if err != nil {
@@ -153,30 +135,31 @@ func post(
 }
 
 func put(
-	userID int, path, token, fileData string, w http.ResponseWriter,
+	path, token, fileData string,
+	w http.ResponseWriter,
 ) {
-	post(userID, path, token, fileData, w)
+	post(path, token, fileData, w)
 	log.Println("Success put file")
 }
 
-func del(userID int, path, token string, w http.ResponseWriter) {
+func del(path, token string, w http.ResponseWriter) {
 	storage := data.GetStorage()
 
-	isHasAccess, err := storage.CheckAccess(token, userID, path, "w")
+	isHasAccess, err := storage.CheckAccess(token, path, "w")
 	if err != nil {
-		log.Println("Failed to get file:", err.Error())
+		log.Println("Failed to del file:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !isHasAccess {
-		log.Println("Failed to get file: Permission denied")
+		log.Println("Failed to del file: Permission denied")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	err = storage.DeleteFile(userID, path)
+	err = storage.DeleteFile(path)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

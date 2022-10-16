@@ -27,7 +27,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parsedBody, err := file.Parse(body)
-	username, password := parsedBody.UserName, parsedBody.Password
+	username, password, maxAge := parsedBody.UserName, parsedBody.Password, parsedBody.MaxAge
 	if err != nil {
 		log.Println("Failed new session: " + err.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -50,8 +50,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie := &http.Cookie{Name: "token", Value: token, MaxAge: 60}
-	w.WriteHeader(http.StatusCreated)
+	cookie := &http.Cookie{Name: "token", Value: token, MaxAge: maxAge}
 	http.SetCookie(w, cookie)
+	w.WriteHeader(http.StatusCreated)
 	log.Printf("Succesfuly new session: %s\n", username)
 }
