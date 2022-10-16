@@ -15,7 +15,7 @@ type CuratorFF struct {
 }
 
 func (c *CuratorFF) transToSystemPath(webPath string) string {
-	return "./cmd/users_data/" + webPath
+	return "cmd/users_data/" + webPath
 }
 
 func (c *CuratorFF) GetFile(path string) (io.ReadCloser, error) {

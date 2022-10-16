@@ -87,7 +87,7 @@ func get(path, token string, w http.ResponseWriter) {
 	rc, err := storage.GetFile(path)
 	if err != nil {
 		log.Println("Failed to get file:", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -138,8 +138,8 @@ func put(
 	path, token, fileData string,
 	w http.ResponseWriter,
 ) {
+	log.Print("define post put /// ")
 	post(path, token, fileData, w)
-	log.Println("Success put file")
 }
 
 func del(path, token string, w http.ResponseWriter) {
@@ -159,7 +159,7 @@ func del(path, token string, w http.ResponseWriter) {
 
 	err = storage.DeleteFile(path)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

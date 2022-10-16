@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"testing"
 
 	"server-rest-study/test/api"
@@ -11,6 +12,8 @@ import (
 )
 
 func Test_server(t *testing.T) {
+	os.Chdir("..")
+	defer os.Chdir("cmd")
 	log.SetOutput(ioutil.Discard)
 	go main()
 
@@ -90,11 +93,34 @@ func Test_server(t *testing.T) {
 		}
 	}
 
+	//----------------------test2---------------------------------------
+	// tries to create user with same nick
+	{
+		hacker := &apiParser.User{
+			Username: valerijhegaj.Username, Password: "wrong", PORT: 4444,
+		}
+		code, err := hacker.Register()
+		if err != nil {
+			t.Error(format.ErrorString("without errors", err.Error()))
+		}
+		if code != http.StatusForbidden {
+			t.Error(format.ErrorInt(http.StatusForbidden, code))
+		}
+
+		code, err = hacker.LogIn(60)
+		if err != nil {
+			t.Error(format.ErrorString("without errors", err.Error()))
+		}
+		if code != http.StatusForbidden {
+			t.Error(format.ErrorInt(http.StatusForbidden, code))
+		}
+	}
+
 	aboba := &apiParser.User{
 		Username: "aboba", Password: "abob", PORT: 4444,
 	}
 
-	//----------------------test2---------------------------------------
+	//----------------------test3---------------------------------------
 	// create another user, and create, get, update, delete foreign file
 	{
 		code, err := aboba.Register()
@@ -184,7 +210,7 @@ func Test_server(t *testing.T) {
 		}
 	}
 
-	//----------------------test3---------------------------------------
+	//----------------------test4---------------------------------------
 	// give r rights for files of one user to another
 	// another try to create, get, update, delete foreign file
 	{
@@ -271,7 +297,7 @@ func Test_server(t *testing.T) {
 		}
 	}
 
-	//----------------------test4---------------------------------------
+	//----------------------test5---------------------------------------
 	// give w rights for files of one user to another
 	// another try to create, get, update, delete foreign file
 	{
@@ -356,7 +382,7 @@ func Test_server(t *testing.T) {
 		}
 	}
 
-	//----------------------test5---------------------------------------
+	//----------------------test6---------------------------------------
 	// give rw rights for files of one user to another
 	// another try to create, get, update, delete foreign file
 	{
@@ -441,7 +467,7 @@ func Test_server(t *testing.T) {
 		}
 	}
 
-	//----------------------test6---------------------------------------
+	//----------------------test7---------------------------------------
 	// give rw and take away all rights for files of one user to another
 	// another try to create, get, update, delete foreign file
 	{
