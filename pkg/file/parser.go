@@ -1,13 +1,16 @@
 package file
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Helper struct {
-	Password string `json:"password"`
-	User     string `json:"user"`
-	UserID   int    `json:"user_id"`
-	Token    string `json:"token"`
-	FileData string `json:"file_data"`
+	Password string `json:"password,omitempty"`
+	UserName string `json:"username,omitempty"`
+	FileData string `json:"file_data,omitempty"`
+	Path     string `json:"path,omitempty"`
+	Rights   string `json:"rights,omitempty"`
+	MaxAge   int    `json:"max_age,omitempty"`
 }
 
 func Parse(data []byte) (
@@ -17,4 +20,9 @@ func Parse(data []byte) (
 	var h Helper
 	err := json.Unmarshal(data, &h)
 	return h, err
+}
+
+func UnParse(data Helper) []byte {
+	rawData, _ := json.Marshal(data)
+	return rawData
 }

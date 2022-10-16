@@ -1,0 +1,16 @@
+###
+POST http://localhost:4444/api/user
+
+{
+"username":"ab"
+}
+
+###
+POST http://localhost:4444/api/session
+
+{
+"username":"ab"
+}
+
+###
+GET http://localhost:4444/api/files/ab/test.txt

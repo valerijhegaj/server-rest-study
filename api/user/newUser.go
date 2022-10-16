@@ -1,7 +1,6 @@
 package user
 
 import (
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -28,35 +27,25 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parsedBody, err := file.Parse(body)
-	user, password := parsedBody.User, parsedBody.Password
-	if user == "" || err != nil {
+	username, password := parsedBody.UserName, parsedBody.Password
+	if username == "" || err != nil {
 		log.Print("Failed to create new user: ")
 		if err == nil {
 			log.Println(err.Error())
 		} else {
-			log.Println("unresolved name")
+			log.Println("unresolved username")
 		}
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	storage := data.GetStorage()
-	userID, err := storage.NewUser(user, password)
+	_, err = storage.NewUser(username, password)
 	if err != nil {
 		log.Println("Failed to create new user: " + err.Error())
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write(representAsJson(userID))
-	log.Println("Successfuly new user: " + user)
-}
-
-func representAsJson(userID int) []byte {
-	data, _ := json.Marshal(
-		struct {
-			UserID int `json:"user_id"`
-		}{userID},
-	)
-	return data
+	log.Println("Successfuly new user: " + username)
 }
